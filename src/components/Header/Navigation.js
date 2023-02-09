@@ -6,7 +6,8 @@ import { GoSearch } from "react-icons/go";
 import { GiTireIronCross } from "react-icons/gi";
 import { BsCart3 } from "react-icons/bs";
 import { IoMdTrash } from "react-icons/io";
-import logo from "../../trendyTees/logo_150x50.png"
+import logo from "../../trendyTees/trendy-tees-logo.png";
+import logo1 from "../../trendyTees/trendy-tees-logo1.png";
 import { FaAngleUp, FaBars } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -85,7 +86,7 @@ const Navigation = () => {
                 <div className="container mx-auto">
                     <div className="hidden lg:flex items-center justify-between py-4 ">
                         <div className="logo">
-                            <Link to={"/"}><img src={logo} className="w-32" alt="Logo" /></Link>
+                            <Link to={"/"}><img src={logo} className="w-40" alt="Logo" /></Link>
                         </div>
                         <div className="w-full">
                             <div className="w-2/3 mx-auto relative rounded-full">
@@ -249,7 +250,7 @@ const Navigation = () => {
 
                     <div className="flex items-center justify-between py-4 lg:hidden">
                         <div className="logo">
-                            <Link to={"/"}><img src={logo} className="w-32" alt="Logo" /></Link>
+                            <Link to={"/"}><img src={logo1} className="w-24" alt="Logo" /></Link>
                         </div>
 
                         <div>
