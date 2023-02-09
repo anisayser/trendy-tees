@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import NavToggleSlice from "../features/NavToggles/NavToggle.slice";
+
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    navToggle: NavToggleSlice
   },
+  middleware: (getDefaultMiddlewares) => getDefaultMiddlewares().concat()
 });
