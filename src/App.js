@@ -7,6 +7,8 @@ import Layout from "./components/layout/Layout";
 import ScrollTop from "./components/ScrollTop/ScrollTop";
 import ViewCart from "./components/ViewCart/ViewCart";
 import theme from "./MuiStyles/MuiStyles";
+import Login from "./pages/Checkout/AuthPages/Login";
+import Register from "./pages/Checkout/AuthPages/Register";
 import CheckoutPartOne from "./pages/Checkout/CheckoutPartOne";
 import FilterProducts from "./pages/FilterProducts";
 import Home from "./pages/Home";
@@ -24,6 +26,8 @@ function App() {
           <Route path="products/id" element={<SingleProduct />} />
           <Route path="viewcart" element={<ViewCart />} />
           <Route path="category" element={<FilterProducts />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
         </Route>
         <Route path="/checkout" element={<CheckoutPartOne />} />
 

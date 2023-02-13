@@ -10,7 +10,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 
-import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
+import { Checkbox, FormControlLabel, FormGroup, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import Slider from '@mui/material/Slider';
 
 
@@ -27,9 +27,16 @@ const FilterProducts = () => {
     const [priceFilter, setPriceFilter] = useState(true);
 
     const [value, setValue] = React.useState([20, 37]);
-
     const handleChange = (event, newValue) => {
         setValue(newValue);
+    };
+
+
+    // COLOR FILTER CONTROLLS
+    const [color, setColor] = useState("Red");
+    const [colorAlignment, setcolorAlignment] = React.useState('left');
+    const handleColorAlignment = (event, newAlignment) => {
+        setcolorAlignment(newAlignment);
     };
 
     return (
@@ -49,7 +56,6 @@ const FilterProducts = () => {
 
             <div className="container mx-auto py-10">
                 <div className="flex items-start lg:space-x-10">
-
 
                     <div className="w-[30%] hidden lg:block">
                         <aside>
@@ -116,6 +122,48 @@ const FilterProducts = () => {
                                                 <FormControlLabel control={<Checkbox size="small" disableRipple />} label="XXL" /> <span>5</span>
                                             </div>
                                         </FormGroup>
+                                    </AccordionDetails>
+                                </Accordion>
+
+                                {/* COLOR FILTER */}
+                                <Accordion expanded={sizeFilter} sx={{ boxShadow: "none" }} onChange={() => setSizeFilter(!sizeFilter)}>
+                                    <AccordionSummary
+                                        expandIcon={<FaAngleDown className="text-black" />}
+                                        aria-controls="panel1bh-content"
+                                        id="panel1bh-header"
+                                    >
+                                        <div className="text-lg font-semibold flex items-center space-x-2">
+                                            <HiOutlineBars3BottomLeft className="text-black" /><span>Color</span>
+                                        </div>
+                                        {/* <Typography sx={{ color: 'text.secondary' }}>I am an accordion</Typography> */}
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <ToggleButtonGroup
+                                            size="small"
+                                            // color="primary"
+                                            value={colorAlignment}
+                                            exclusive
+                                            onChange={handleColorAlignment}
+                                            aria-label="text alignment"
+                                        >
+                                            <ToggleButton value="red" aria-label="left aligned" onClick={() => setColor("Red")}>
+                                                <span className="font-bold text-sm w-5 h-5 bg-red-700"></span>
+                                            </ToggleButton>
+                                            <ToggleButton value="green" aria-label="centered" onClick={() => setColor("Green")}>
+                                                <span className="font-bold text-sm w-5 h-5 bg-green-700"></span>
+
+                                            </ToggleButton>
+                                            <ToggleButton value="blue" aria-label="right aligned" onClick={() => setColor("Blue")}>
+                                                <span className="font-bold text-sm w-5 h-5 bg-blue-700"></span>
+
+                                            </ToggleButton>
+                                            <ToggleButton value="black" aria-label="justified" onClick={() => setColor("Black")}>
+                                                <span className="font-bold text-sm w-5 h-5 bg-black"></span>
+                                            </ToggleButton>
+                                            <ToggleButton value="white" aria-label="justified" onClick={() => setColor("White")}>
+                                                <span className="font-bold text-sm w-5 h-5 bg-white"></span>
+                                            </ToggleButton>
+                                        </ToggleButtonGroup>
                                     </AccordionDetails>
                                 </Accordion>
 

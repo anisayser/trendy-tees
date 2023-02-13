@@ -187,6 +187,13 @@ const Navigation = () => {
                                         Settings
                                     </MenuItem>
                                     <MenuItem onClick={handleClose}>
+                                        <Link to="/login"><ListItemIcon>
+                                            <FiLogOut fontSize="small" />
+                                        </ListItemIcon>
+                                            Login
+                                        </Link>
+                                    </MenuItem>
+                                    <MenuItem onClick={handleClose}>
                                         <ListItemIcon>
                                             <FiLogOut fontSize="small" />
                                         </ListItemIcon>
