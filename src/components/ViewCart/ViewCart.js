@@ -16,7 +16,14 @@ import { FaTrash } from "react-icons/fa";
 import ProductGrid from "../ProductGrid/ProductGrid";
 import { BiMinus, BiPlus } from "react-icons/bi";
 import Footer from "../Footer/Footer";
+import { useGetCartProductsByEmailQuery } from "../../features/cart/cartApi";
+import { useAuthState } from "react-firebase-hooks/auth";
+import auth from "../../firebaseInit";
+import ViewCartData from "./ViewCartData";
 
+
+
+//TABLE CONTROLLERS START
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
         backgroundColor: "#F2F2F2",
@@ -27,33 +34,29 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
         fontSize: 14,
     },
 }));
+//TABLE CONTROLLERS ENDS
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
-}));
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-    createData(<img src={img} className="w-32" alt="" />, "This is the title of the product", 12, 6, 3250),
-    createData(<img src={img} className="w-32" alt="" />, "This is the title of the product", 13, 6, 3250),
-    createData(<img src={img} className="w-32" alt="" />, "This is the title of the product", 14, 6, 3250),
-];
 
 const ViewCart = () => {
 
+    const [user] = useAuthState(auth);
 
-    const [quantity, setQuantity] = useState(1);
+    //CART PRODUCT CONTROLLERS START
+    const { data: cartProducts, isLoading: cartIsLoading, isError: cartIsError, error: cartError } = useGetCartProductsByEmailQuery(user?.email);
+    //TOTAL CALCULATION
+    let subTotal = 0;
+    let total = 0;
+    let tax = 0;
+    let shipping = 0;
 
-    const handleQuantity = () => {
-        if (quantity < 2) {
-            setQuantity(1);
-        } else {
-            setQuantity(quantity - 1)
+    if (cartProducts?.length > 0) {
+        for (const products of cartProducts) {
+            subTotal += products.product.price * products.product.quantity;
         }
     }
+    //CART PRODUCT CONTROLLERS ENDS
 
 
     return (
@@ -91,24 +94,7 @@ const ViewCart = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {rows.map((row) => (
-                                                <StyledTableRow key={row.name}>
-                                                    <StyledTableCell align="left"><IoTrashOutline className="text-xl cursor-pointer" /></StyledTableCell>
-                                                    <StyledTableCell component="th" scope="row">
-                                                        {row.name}
-                                                    </StyledTableCell>
-                                                    <StyledTableCell align="left">{row.calories}</StyledTableCell>
-                                                    <StyledTableCell align="left">${row.fat}</StyledTableCell>
-                                                    <StyledTableCell align="left">
-                                                        <div className="flex items-center">
-                                                            <button className="text-lg p-1 border h-7" onClick={handleQuantity}><BiMinus /></button>
-                                                            <input type="text" className="border-t border-b p-1 w-10 h-7 text-center font-bold text-sm" value={quantity} onChange={e => setQuantity(+e.target.value)} />
-                                                            <button className="text-lg p-1 border h-7" onClick={() => setQuantity(quantity + 1)}><BiPlus /></button>
-                                                        </div>
-                                                    </StyledTableCell>
-                                                    <StyledTableCell align="left">${row.protein}</StyledTableCell>
-                                                </StyledTableRow>
-                                            ))}
+                                            {cartProducts?.map((cartProduct) => (<ViewCartData key={cartProduct._id} cartProduct={cartProduct} />))}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
@@ -123,7 +109,7 @@ const ViewCart = () => {
                                     <div className="bg-info p-5 space-y-5">
                                         <div className="flex items-center justify-between">
                                             <h4 className="font-semibold text-base lg:text-lg">Total :</h4>
-                                            <h4 className="font-bold text-base lg:text-2xl">$3250</h4>
+                                            <h4 className="font-bold text-base lg:text-2xl">${subTotal}</h4>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <h4 className="font-semibold text-base lg:text-lg">Shipping :</h4>
@@ -163,7 +149,7 @@ const ViewCart = () => {
                 </div>
 
             </div>
-            
+
         </>
     )
 }

@@ -6,8 +6,11 @@ import { FaAngleDown, FaTrash } from "react-icons/fa";
 import { GiTireIronCross } from "react-icons/gi";
 import { HiBars4, HiOutlineBars3BottomLeft, HiOutlineBars4 } from "react-icons/hi2";
 import { TfiLayoutGrid2Alt, TfiLayoutGrid3Alt, TfiLayoutGrid4Alt } from "react-icons/tfi";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useParams } from "react-router-dom";
+import { useGetProductsQuery } from "../../features/products/productsApi";
 import img from "../../trendyTees/1_260x322.jpg";
+import FilterProduct from "./FilterProduct";
 
 
 //ACCORDION FUNCTION
@@ -16,6 +19,8 @@ function valuetext(value) {
 }
 
 const FilterProductGrid = () => {
+
+    const { title } = useParams();
 
     const [grid, setGrid] = useState("4");
 
@@ -30,9 +35,9 @@ const FilterProductGrid = () => {
     //CART OPEN CONTROLLERS ENDS
 
 
-    const [stockFilter, setStockFilter] = useState(true);
-    const [sizeFilter, setSizeFilter] = useState(true);
-    const [priceFilter, setPriceFilter] = useState(true);
+    const [stockFilterAccordion, setStockFilterAccordion] = useState(true);
+    const [sizeFilterAccordion, setSizeFilterAccordion] = useState(true);
+    const [priceFilterAccordion, setPriceFilterAccordion] = useState(true);
 
     const [value, setValue] = useState([20, 37]);
     const handleChange = (event, newValue) => {
@@ -47,10 +52,37 @@ const FilterProductGrid = () => {
     };
 
 
+    // SELECT FILTER CONTROLLS
     const [selectFilter, setSelectFilter] = useState('');
     const handleSelectFilterChange = (event) => {
         setSelectFilter(event.target.value);
     };
+
+
+
+    // STOCK, SIZE, COLOR, PRICE filters
+    const dispatch = useDispatch();
+    const { stockFilter, sizeFilter, colorFilter, priceFilter } = useSelector(state => state.filters);
+
+
+
+
+    //FILTER PRODUCTS
+    const { data: filterProducts, isLoading: filterIsLoading, isError: filterIsError, error: filterError } = useGetProductsQuery(`categories=${title}`);
+    //Decide what to render for men
+    let filterContent = null;
+    if (filterIsLoading) {
+        filterContent = <p className="text-xl font-bold">Loading....</p>
+    }
+    if (!filterIsLoading && filterIsError) {
+        filterContent = <p className="text-xl font-bold">{filterError.message}</p>
+    }
+    if (!filterIsLoading && !filterIsError && filterProducts?.length === 0) {
+        filterContent = <p className="text-xl font-bold">No Products found</p>
+    }
+    if (!filterIsLoading && !filterIsError && filterProducts?.length > 0) {
+        filterContent = filterProducts?.map(product => <FilterProduct key={product._id} product={product} />)
+    }
 
 
     return (
@@ -114,7 +146,7 @@ const FilterProductGrid = () => {
                                 </div>
                                 <div>
                                     {/* STOCK FILTER */}
-                                    <Accordion expanded={stockFilter} sx={{ boxShadow: "none" }} onChange={() => setStockFilter(!stockFilter)}>
+                                    <Accordion expanded={stockFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setStockFilterAccordion(!stockFilterAccordion)}>
                                         <AccordionSummary
                                             expandIcon={<FaAngleDown className="text-black" />}
                                             aria-controls="panel1bh-content"
@@ -139,7 +171,7 @@ const FilterProductGrid = () => {
                                     </Accordion>
 
                                     {/* SIZE FILTER */}
-                                    <Accordion expanded={sizeFilter} sx={{ boxShadow: "none" }} onChange={() => setSizeFilter(!sizeFilter)}>
+                                    <Accordion expanded={sizeFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setSizeFilterAccordion(!sizeFilterAccordion)}>
                                         <AccordionSummary
                                             expandIcon={<FaAngleDown className="text-black" />}
                                             aria-controls="panel1bh-content"
@@ -169,7 +201,7 @@ const FilterProductGrid = () => {
                                     </Accordion>
 
                                     {/* COLOR FILTER */}
-                                    <Accordion expanded={sizeFilter} sx={{ boxShadow: "none" }} onChange={() => setSizeFilter(!sizeFilter)}>
+                                    <Accordion expanded={sizeFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setSizeFilterAccordion(!sizeFilterAccordion)}>
                                         <AccordionSummary
                                             expandIcon={<FaAngleDown className="text-black" />}
                                             aria-controls="panel1bh-content"
@@ -211,7 +243,7 @@ const FilterProductGrid = () => {
                                     </Accordion>
 
                                     {/* PRICE FILTER */}
-                                    <Accordion expanded={priceFilter} sx={{ boxShadow: "none" }} onChange={() => setPriceFilter(!priceFilter)}>
+                                    <Accordion expanded={priceFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setPriceFilterAccordion(!priceFilterAccordion)}>
                                         <AccordionSummary
                                             expandIcon={<FaAngleDown className="text-black" />}
                                             aria-controls="panel1bh-content"
@@ -245,35 +277,10 @@ const FilterProductGrid = () => {
 
 
                 <div className={`grid grid-cols-2 md:grid-cols-${grid} gap-4 md:gap-8 duration-500`}>
-                    {
-                        [...Array(4).keys()].map(product => (
-                            <div key={product} className={`space-y-2 border p-2`}>
-                                <div>
-                                    <img src={img} className="w-full" alt="" />
-                                </div>
-                                <div>
-                                    <Link to="/products/id">
-                                        <h4 className="text-base font-bold">Product Title</h4>
-                                    </Link>
-                                    <h4 className="text-primary font-bold">$456</h4>
-                                </div>
-                                <div>
-                                    <Rating name="read-only" value={3} readOnly size="small" />
-                                </div>
-                                <div>
-                                    {/* <button className="bg-black text-white w-full py-1 md:py-2 text-sm md:text-base shadow-xl hover:bg-primary hover:text-white duration-300 ease-linear">Add to cart</button> */}
-                                    <button className="w-full relative inline-flex items-center text-center py-1 overflow-hidden text-lg font-medium text-black border-2 border-black hover:text-white group hover:bg-gray-50">
-                                        <span className="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
-                                        <span className="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
-                                            <BsCart3 className="text-2xl font-bold hidden sm:block" />
-                                        </span>
-                                        <span className="relative text-center mx-auto">Add to cart</span>
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    }
+                    {filterContent}
                 </div>
+
+
             </div>
         </>
     )

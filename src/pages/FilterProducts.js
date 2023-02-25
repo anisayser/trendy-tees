@@ -22,9 +22,9 @@ function valuetext(value) {
 
 const FilterProducts = () => {
 
-    const [stockFilter, setStockFilter] = useState(true);
-    const [sizeFilter, setSizeFilter] = useState(true);
-    const [priceFilter, setPriceFilter] = useState(true);
+    const [stockFilterAccordion, setStockFilterAccordion] = useState(true);
+    const [sizeFilterAccordion, setSizeFilterAccordion] = useState(true);
+    const [priceFilterAccordion, setPriceFilterAccordion] = useState(true);
 
     const [value, setValue] = React.useState([20, 37]);
     const handleChange = (event, newValue) => {
@@ -38,6 +38,11 @@ const FilterProducts = () => {
     const handleColorAlignment = (event, newAlignment) => {
         setcolorAlignment(newAlignment);
     };
+
+
+
+
+    
 
     return (
         <div className="pt-[58px] lg:pt-0">
@@ -71,7 +76,7 @@ const FilterProducts = () => {
 
                             <div>
                                 {/* STOCK FILTER */}
-                                <Accordion expanded={stockFilter} sx={{ boxShadow: "none" }} onChange={() => setStockFilter(!stockFilter)}>
+                                <Accordion expanded={stockFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setStockFilterAccordion(!stockFilterAccordion)}>
                                     <AccordionSummary
                                         expandIcon={<FaAngleDown className="text-black" />}
                                         aria-controls="panel1bh-content"
@@ -96,7 +101,7 @@ const FilterProducts = () => {
                                 </Accordion>
 
                                 {/* SIZE FILTER */}
-                                <Accordion expanded={sizeFilter} sx={{ boxShadow: "none" }} onChange={() => setSizeFilter(!sizeFilter)}>
+                                <Accordion expanded={sizeFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setSizeFilterAccordion(!sizeFilterAccordion)}>
                                     <AccordionSummary
                                         expandIcon={<FaAngleDown className="text-black" />}
                                         aria-controls="panel1bh-content"
@@ -126,7 +131,7 @@ const FilterProducts = () => {
                                 </Accordion>
 
                                 {/* COLOR FILTER */}
-                                <Accordion expanded={sizeFilter} sx={{ boxShadow: "none" }} onChange={() => setSizeFilter(!sizeFilter)}>
+                                <Accordion expanded={sizeFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setSizeFilterAccordion(!sizeFilterAccordion)}>
                                     <AccordionSummary
                                         expandIcon={<FaAngleDown className="text-black" />}
                                         aria-controls="panel1bh-content"
@@ -168,7 +173,7 @@ const FilterProducts = () => {
                                 </Accordion>
 
                                 {/* PRICE FILTER */}
-                                <Accordion expanded={priceFilter} sx={{ boxShadow: "none" }} onChange={() => setPriceFilter(!priceFilter)}>
+                                <Accordion expanded={priceFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setPriceFilterAccordion(!priceFilterAccordion)}>
                                     <AccordionSummary
                                         expandIcon={<FaAngleDown className="text-black" />}
                                         aria-controls="panel1bh-content"

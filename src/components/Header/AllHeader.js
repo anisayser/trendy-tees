@@ -1,6 +1,5 @@
 import React from 'react'
 import Navigation from "./Navigation";
-import NavigationTwo from "./NavigationTwo";
 import TopHeader from "./TopHeader";
 
 const AllHeader = () => {
@@ -8,7 +7,6 @@ const AllHeader = () => {
         <>
             <TopHeader />
             <Navigation />
-            {/* <NavigationTwo /> */}
         </>
     )
 }

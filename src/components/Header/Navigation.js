@@ -13,10 +13,18 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { openCart } from "../../features/NavToggles/NavToggle.slice";
 import img from "../../trendyTees/1_260x322.jpg";
+import { useGetCategoriesQuery } from "../../features/categories/categoriesApi";
+import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
+import auth from "../../firebaseInit";
+import CartDrawer from "./CartDrawer";
+import { useGetCartProductsByEmailQuery } from "../../features/cart/cartApi";
+
 
 
 const Navigation = () => {
     const dispatch = useDispatch();
+    const [signOut, loading] = useSignOut(auth);
+    const [user] = useAuthState(auth);
 
     //HIDE AND SHOW DEPENDING ON SCROLL
     const [scrollTopBtn, setScrollTopBtn] = useState(false);
@@ -33,6 +41,7 @@ const Navigation = () => {
         }
     })
 
+    //GOT TOP OF THE PAGE ON CLICK FUNCTION
     const goToTop = () => {
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
@@ -76,6 +85,29 @@ const Navigation = () => {
         setAnchorEl(null);
     };
     // DROPDOWN MENU USER FOR DESKTOP ENDS
+
+
+    const { data: categories, isLoading, isError, error } = useGetCategoriesQuery();
+
+    //Decide what to render for categories
+    let content = null;
+    if (isLoading) {
+        content = <p className="text-xl font-bold">Loading....</p>
+    }
+    if (!isLoading && isError) {
+        content = <p className="text-xl font-bold">{error.message}</p>
+    }
+    if (!isLoading && !isError && categories?.length === 0) {
+        content = <p className="text-xl font-bold">No Products found</p>
+    }
+    if (!isLoading && !isError && categories?.length > 0) {
+        content = categories?.map(cat => <Link key={cat._id} to={`/category/${cat.title}`}>{cat.title}</Link>)
+    }
+
+
+
+    //TOTAL CART PRODUCTS
+    const { data: cartProducts } = useGetCartProductsByEmailQuery(user?.email);
 
 
 
@@ -176,6 +208,9 @@ const Navigation = () => {
                                         <Avatar /> Profile
                                     </MenuItem>
                                     <MenuItem onClick={handleClose}>
+                                        <Avatar /> {user?.email}
+                                    </MenuItem>
+                                    <MenuItem onClick={handleClose}>
                                         <Avatar /> My account
                                     </MenuItem>
                                     <Divider />
@@ -186,29 +221,36 @@ const Navigation = () => {
                                         </ListItemIcon>
                                         Settings
                                     </MenuItem>
-                                    <MenuItem onClick={handleClose}>
-                                        <Link to="/login"><ListItemIcon>
-                                            <FiLogOut fontSize="small" />
-                                        </ListItemIcon>
-                                            Login
-                                        </Link>
-                                    </MenuItem>
-                                    <MenuItem onClick={handleClose}>
-                                        <ListItemIcon>
-                                            <FiLogOut fontSize="small" />
-                                        </ListItemIcon>
-                                        Logout
-                                    </MenuItem>
+                                    {!user?.email ?
+                                        <MenuItem onClick={handleClose}>
+                                            <Link to="/login"><ListItemIcon>
+                                                <FiLogOut fontSize="small" />
+                                            </ListItemIcon>
+                                                Login
+                                            </Link>
+                                        </MenuItem>
+                                        :
+                                        <MenuItem onClick={handleClose}>
+                                            <button onClick={async () => await signOut()}>
+                                                <ListItemIcon>
+                                                    <FiLogOut fontSize="small" />
+                                                </ListItemIcon>
+                                                Logout
+                                            </button>
+                                        </MenuItem>
+                                    }
                                 </Menu>
 
 
                             </div>
                             <div className="text-center">
                                 <div onClick={toggleCartDrawer("right", true)}>
-                                    <div className="text-center cursor-pointer">
-                                        <BsCart3 className="mx-auto text-3xl text-slate-400" />
-                                        <p className="text-sm font-semibold">Cart</p>
-                                    </div>
+                                    <Badge badgeContent={cartProducts?.length} color="primary">
+                                        <div className="text-center cursor-pointer">
+                                            <BsCart3 className="mx-auto text-3xl text-slate-400" />
+                                            <p className="text-sm font-semibold">Cart</p>
+                                        </div>
+                                    </Badge>
                                 </div>
                             </div>
                         </div>
@@ -273,14 +315,7 @@ const Navigation = () => {
             <div className="border-t border-b py-3 hidden lg:block">
                 <div className="container mx-auto">
                     <div className="flex items-center space-x-8 justify-center text-lg ">
-                        <Link to={"/category"}>Women</Link>
-                        <Link to={"/category"}>Men</Link>
-                        <Link to={"/category"}>Youth & Baby</Link>
-                        <Link to={"/category"}>Home & Living</Link>
-                        <Link to={"/category"}>Phone Case</Link>
-                        <Link to={"/category"}>Accessories</Link>
-                        <Link to={"/category"}>Mugs</Link>
-                        <Link to={"/category"}>Contact Us</Link>
+                        {content}
                     </div>
                 </div>
             </div>
@@ -310,82 +345,10 @@ const Navigation = () => {
                 </div>
             </Drawer>
 
+
+
             {/* CART DRAWER */}
-            <Drawer
-                anchor={"right"}
-                open={cartOpen}
-                onClose={toggleCartDrawer("right", false)}
-            >
-                <div>
-                    <div className="flex items-center justify-between p-3 bg-primary text-white">
-                        <h4>Cart Products</h4>
-                        <GiTireIronCross className="cursor-pointer" onClick={toggleCartDrawer("right", false)} />
-                    </div>
-                    <div className="w-[100vw] sm:w-96 py-5 flex flex-col space-y-2 divide-y">
-
-                        <div className="px-3 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <div className="flex space-x-3">
-                                    <Badge badgeContent={4} color="secondary">
-                                        <img src={img} className="w-16 border p-1 rounded" alt="" />
-                                    </Badge>
-                                    <div>
-                                        <h5>This is the Product Title</h5>
-                                        <h4 className=""> <span>$3250</span> x <span>4</span></h4>
-                                    </div>
-                                </div>
-                                <button><IoMdTrash className="text-2xl text-tertiary" /></button>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex space-x-3">
-                                    <Badge badgeContent={4} color="secondary">
-                                        <img src={img} className="w-16 border p-1 rounded" alt="" />
-                                    </Badge>
-                                    <div>
-                                        <h5>This is the Product Title</h5>
-                                        <h4 className=""> <span>$3250</span> x <span>4</span></h4>
-                                    </div>
-                                </div>
-                                <button><IoMdTrash className="text-2xl text-tertiary" /></button>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex space-x-3">
-                                    <Badge badgeContent={4} color="secondary">
-                                        <img src={img} className="w-16 border p-1 rounded" alt="" />
-                                    </Badge>
-                                    <div>
-                                        <h5>This is the Product Title</h5>
-                                        <h4 className=""> <span>$3250</span> x <span>4</span></h4>
-                                    </div>
-                                </div>
-                                <button><IoMdTrash className="text-2xl text-tertiary" /></button>
-                            </div>
-
-                        </div>
-
-                        <div className="px-5">
-                            <div className="flex items-center justify-between pt-3">
-                                <h4 className="text-lg">Total : </h4>
-                                <h4 className="text-lg">$6850</h4>
-                            </div>
-                        </div>
-
-
-
-                        <div className="px-5 pt-5">
-                            <Link to="/viewcart">
-                                <button onClick={toggleCartDrawer("right", false)} className="w-full relative inline-flex items-center text-center px-12 py-1 overflow-hidden text-lg font-medium text-black border-2 border-black hover:text-white group hover:bg-gray-50">
-                                    <span className="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
-                                    <span className="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
-                                        <BsCart3 className="text-2xl font-bold" />
-                                    </span>
-                                    <span className="relative text-center mx-auto">View Cart</span>
-                                </button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </Drawer>
+            <CartDrawer />
 
 
             {/* SCROLL TO TOP */}

@@ -7,8 +7,8 @@ import Layout from "./components/layout/Layout";
 import ScrollTop from "./components/ScrollTop/ScrollTop";
 import ViewCart from "./components/ViewCart/ViewCart";
 import theme from "./MuiStyles/MuiStyles";
-import Login from "./pages/Checkout/AuthPages/Login";
-import Register from "./pages/Checkout/AuthPages/Register";
+import Login from "./pages/AuthPages/Login";
+import Register from "./pages/AuthPages/Register";
 import CheckoutPartOne from "./pages/Checkout/CheckoutPartOne";
 import FilterProducts from "./pages/FilterProducts";
 import Home from "./pages/Home";
@@ -23,9 +23,9 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
-          <Route path="products/id" element={<SingleProduct />} />
+          <Route path="product/:id" element={<SingleProduct />} />
           <Route path="viewcart" element={<ViewCart />} />
-          <Route path="category" element={<FilterProducts />} />
+          <Route path="category/:title" element={<FilterProducts />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
         </Route>

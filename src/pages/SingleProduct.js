@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Footer from "../components/Footer/Footer";
 import AllHeader from "../components/Header/AllHeader";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { VscTriangleRight } from "react-icons/vsc";
 import BottomNavigation from "../components/BottomNavigation/BottomNavigation";
-import { Box, Rating, Tab, Tabs, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, CircularProgress, Rating, Tab, Tabs, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import ImageGallery from 'react-image-gallery';
 import { FaAngleDown, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import img from "../trendyTees/1_260x322.jpg";
@@ -14,6 +14,10 @@ import { BiMinus, BiPlus } from "react-icons/bi";
 import ProductGrid from "../components/ProductGrid/ProductGrid";
 import { BsCart3 } from "react-icons/bs";
 import ProductReview from "../components/ProductReview/ProductReview";
+import { useAddToTheCartMutation, useGetCartProductsByEmailQuery, useUpdateCartProductMutation } from "../features/cart/cartApi";
+import { useAuthState } from "react-firebase-hooks/auth";
+import auth from "../firebaseInit";
+import { useGetProductByIdQuery } from "../features/products/productsApi";
 
 const images = [
     {
@@ -67,20 +71,40 @@ function a11yProps(index) {
 
 
 const SingleProduct = () => {
-
-    const [size, setSize] = useState("M");
-    const [color, setColor] = useState("Red");
+    const { id } = useParams();
+    const [user] = useAuthState(auth);
+    const [size, setSize] = useState("");
+    const [color, setColor] = useState("");
     const [quantity, setQuantity] = useState(1);
 
-    const [alignment, setAlignment] = React.useState('left');
+    const [alignment, setAlignment] = useState('left');
     const handleAlignment = (event, newAlignment) => {
         setAlignment(newAlignment);
     };
-    const [colorAlignment, setcolorAlignment] = React.useState('left');
+    const [colorAlignment, setcolorAlignment] = useState('left');
     const handleColorAlignment = (event, newAlignment) => {
         setcolorAlignment(newAlignment);
     };
 
+
+    //GETTING THE PRODUCT
+    const { data: product, isLoading: proIsLoading, isError: proIsError, error: proError } = useGetProductByIdQuery(id);
+
+    //Decide what to render for Single Product
+    let content = null;
+    if (proIsLoading) {
+        content = <p className="text-xl font-bold">Loading....</p>
+    }
+    if (!proIsLoading && proIsError) {
+        content = <p className="text-xl font-bold">{proError.message}</p>
+    }
+    if (!proIsLoading && !proIsError && !product?.title) {
+        content = <p className="text-xl font-bold">No Products found</p>
+    }
+
+
+
+    //QUANTITY CONTROLLER STARTS
     const handleQuantity = () => {
         if (quantity < 2) {
             setQuantity(1);
@@ -88,19 +112,53 @@ const SingleProduct = () => {
             setQuantity(quantity - 1)
         }
     }
+    //QUANTITY CONTROLLER ENDS
 
-    // console.log(quantity);
 
-    // TAB CONTROLLERS
+    // TAB CONTROLLERS STARTS
     const [value, setValue] = React.useState(0);
-
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+    // TAB CONTROLLERS ENDS
+
+
+
+    //ADD TO CART CONTROLLER STARTS
+    const navigate = useNavigate();
+    const [addToTheCart, { isLoading, isError, error, isSuccess }] = useAddToTheCartMutation();
+    const { data: cartProducts, isLoading: cartIsLoading, isError: cartIsError, error: cartError } = useGetCartProductsByEmailQuery(user?.email);
+    const [updateCartProduct, { isLoading: updIsLoading, isError: updIsError, error: updError, isSuccess: updIsSuccess }] = useUpdateCartProductMutation();
+
+    const existsInCart = cartProducts?.find(cartPro => cartPro.product.productId === product?._id);
+
+    const handleAddToCart = () => {
+        const newCartPro = { ...product };
+        delete newCartPro._id;
+        if (!user?.email) {
+            navigate("/login");
+        } else {
+            if (existsInCart) {
+                updateCartProduct({
+                    id: product._id,
+                    data: { ...existsInCart, product: { ...existsInCart.product, quantity: quantity, size: size, colors: color } }
+                })
+            } else {
+                addToTheCart({
+                    email: user?.email,
+                    product: { ...newCartPro, productId: product._id, quantity: quantity, size: size, colors: color }
+                });
+            }
+        }
+    }
+    //ADD TO CART CONTROLLER ENDS
+
+
 
 
     return (
         <>
+
             <div className="bg-info pt-[72px] lg:pt-5 pb-10 ">
                 <div className="container 2xl:max-w-[60vw] mx-auto">
                     <div className="flex items-center space-x-2 sm:space-x-5 pb-5 px-5 text-sm overflow-x-auto">
@@ -112,6 +170,7 @@ const SingleProduct = () => {
                     </div>
 
                     {/* SINGLE PRODUCT DETAILS */}
+                    {content}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="relative px-5 hidden sm:block">
                             <ImageGallery
@@ -147,7 +206,7 @@ const SingleProduct = () => {
                         <div>
                             <div className="px-5 lg:px-0">
                                 <div className="space-y-2">
-                                    <h2 className="text-lg font-bold">Diamond Halo Stud Eget</h2>
+                                    <h2 className="text-lg font-bold">{product?.title}</h2>
                                     <Rating name="size-medium" size="small" defaultValue={2} readOnly />
                                 </div>
                                 <div>
@@ -155,29 +214,29 @@ const SingleProduct = () => {
                                         <tbody>
                                             <tr>
                                                 <th className="w-36 py-2">Available</th>
-                                                <td className="text-left ">IN-STOCK</td>
+                                                <td className="text-left ">{product?.status}</td>
                                             </tr>
                                             <tr>
                                                 <th className="w-36 py-2">Category</th>
-                                                <td className="text-left">Men, Women, Phone Case, Youth & Baby</td>
+                                                <td className="text-left">{product?.categories}</td>
                                             </tr>
                                             <tr>
                                                 <th className="w-36 py-2">Tags</th>
-                                                <td className="text-left">Men, Women, Red, Green, Blue, White, Black, Creative, Streat Style</td>
+                                                <td className="text-left">{product?.tags}</td>
                                             </tr>
 
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="pt-3 pr-0 lg:pr-10">
-                                    <p className="text-sm">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius temporibus exercitationem esse deleniti incidunt accusamus accusantium nobis, repellat maxime labore saepe odit modi tenetur ad quasi amet veniam, beatae quos.</p>
+                                    <p className="text-sm">{product?.shortDescription}</p>
                                 </div>
                             </div>
 
 
                             <div className="bg-white py-3 divide-y mt-5">
                                 <div>
-                                    <h2 className="text-3xl text-primary font-bold px-5 pb-3">$725</h2>
+                                    <h2 className="text-3xl text-primary font-bold px-5 pb-3">${product?.price}</h2>
                                 </div>
                                 <div className="p-5">
                                     <div>
@@ -190,20 +249,15 @@ const SingleProduct = () => {
                                             onChange={handleAlignment}
                                             aria-label="text alignment"
                                         >
-                                            <ToggleButton value="left" aria-label="left aligned" onClick={() => setSize("M")}>
-                                                <span className="font-bold text-sm w-8">M</span>
-                                            </ToggleButton>
-                                            <ToggleButton value="center" aria-label="centered" onClick={() => setSize("L")}>
-                                                <span className="font-bold text-sm w-8">L</span>
 
-                                            </ToggleButton>
-                                            <ToggleButton value="right" aria-label="right aligned" onClick={() => setSize("XL")}>
-                                                <span className="font-bold text-sm w-8">XL</span>
+                                            {
+                                                product?.size.map(size =>
+                                                    <ToggleButton key={size} value={size} aria-label={size} onClick={() => setSize(size)}>
+                                                        <span className="font-bold text-sm w-8">{size}</span>
+                                                    </ToggleButton>
+                                                )
+                                            }
 
-                                            </ToggleButton>
-                                            <ToggleButton value="justify" aria-label="justified" onClick={() => setSize("XXL")}>
-                                                <span className="font-bold text-sm w-8">XXL</span>
-                                            </ToggleButton>
                                         </ToggleButtonGroup>
                                     </div>
 
@@ -217,20 +271,14 @@ const SingleProduct = () => {
                                             onChange={handleColorAlignment}
                                             aria-label="text alignment"
                                         >
-                                            <ToggleButton value="left" aria-label="left aligned" onClick={() => setColor("Red")}>
-                                                <span className="font-bold text-sm w-5 h-5 bg-red-700"></span>
-                                            </ToggleButton>
-                                            <ToggleButton value="center" aria-label="centered" onClick={() => setColor("Green")}>
-                                                <span className="font-bold text-sm w-5 h-5 bg-green-700"></span>
+                                            {
+                                                product?.colors.map(color =>
+                                                    <ToggleButton key={color.title} value={color.title} aria-label={color.title} onClick={() => setColor(color.title)}>
+                                                        <span className={`font-bold text-sm w-5 h-5 `} style={{ backgroundColor: color.colorCode }}></span>
+                                                    </ToggleButton>
+                                                )
+                                            }
 
-                                            </ToggleButton>
-                                            <ToggleButton value="right" aria-label="right aligned" onClick={() => setColor("Blue")}>
-                                                <span className="font-bold text-sm w-5 h-5 bg-blue-700"></span>
-
-                                            </ToggleButton>
-                                            <ToggleButton value="justify" aria-label="justified" onClick={() => setColor("Black")}>
-                                                <span className="font-bold text-sm w-5 h-5 bg-black"></span>
-                                            </ToggleButton>
                                         </ToggleButtonGroup>
                                     </div>
 
@@ -244,13 +292,18 @@ const SingleProduct = () => {
                                     </div>
 
                                     <div className="pt-7">
-                                        <button className="w-full relative inline-flex items-center text-center px-12 py-1 overflow-hidden text-lg font-medium text-black border-2 border-black hover:text-white group hover:bg-gray-50">
+                                        {!isLoading || !updIsLoading ? <button onClick={handleAddToCart} className="w-full relative inline-flex items-center text-center px-12 py-1 overflow-hidden text-lg font-medium text-black border-2 border-black hover:text-white group hover:bg-gray-50">
                                             <span className="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
                                             <span className="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
                                                 <BsCart3 className="text-2xl font-bold" />
                                             </span>
                                             <span className="relative text-center mx-auto">Add to cart</span>
                                         </button>
+                                            :
+                                            <button className="w-full pt-2 border-2 border-black bg-black">
+                                                <CircularProgress style={{ width: "20px", height: "20px" }} />
+                                            </button>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -264,7 +317,7 @@ const SingleProduct = () => {
 
 
 
-            {/* SINGLE PRODUCT DETAILS */}
+            {/* SINGLE PRODUCT DETAILS TAB */}
             <div className="bg-white py-10">
                 <div className="container  2xl:max-w-[60vw] mx-auto">
 
