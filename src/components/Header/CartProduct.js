@@ -17,7 +17,7 @@ const CartProduct = ({ cartProduct }) => {
     return (
         <div className="flex items-center justify-between">
             <div className="flex space-x-3">
-                <Badge badgeContent={4} color="secondary">
+                <Badge badgeContent={quantity} color="secondary">
                     <img src={image} className="w-16 border p-1 rounded" alt="" />
                 </Badge>
                 <div>

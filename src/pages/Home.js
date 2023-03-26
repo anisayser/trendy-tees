@@ -14,7 +14,7 @@ import { useGetProductsQuery } from "../features/products/productsApi";
 const Home = () => {
 
 
-    const { data: menProducts, isLoading: menIsLoading, isError: menIsError, error: menError } = useGetProductsQuery("sort=-_id&limit=4&categories=Men");
+    const { data: menProducts, isLoading: menIsLoading, isError: menIsError, error: menError } = useGetProductsQuery("sort=-_id&limit=4&categories.slug=men-3355469281582");
     const { data: newProducts, isLoading: newIsLoading, isError: newIsError, error: newError } = useGetProductsQuery("sort=-_id&limit=4");
     const { data: bestSellProducts, isLoading: bestSellIsLoading, isError: bestSellIsError, error: bestSellError } = useGetProductsQuery("sort=price&limit=4");
     const { data: onSaleProducts, isLoading: onSaleIsLoading, isError: onSaleIsError, error: onSaleError } = useGetProductsQuery("sort=-price&limit=4");

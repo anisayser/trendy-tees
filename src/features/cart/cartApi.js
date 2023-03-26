@@ -43,8 +43,16 @@ export const cartApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: () => ["Cart"]
         }),
+
+        deleteAllFromCart: builder.mutation({
+            query: (email) => ({
+                url: `/cart/delete?email=${email}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: () => ["Cart"]
+        }),
     })
 })
 
-export const { useAddToTheCartMutation, useGetCartProductsByEmailQuery, useDeleteFromCartMutation, useUpdateCartProductMutation } = cartApi;
+export const { useAddToTheCartMutation, useGetCartProductsByEmailQuery, useDeleteFromCartMutation, useUpdateCartProductMutation, useDeleteAllFromCartMutation } = cartApi;
 

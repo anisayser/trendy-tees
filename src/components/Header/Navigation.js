@@ -1,5 +1,5 @@
 import { Avatar, Badge, Divider, Drawer, ListItemIcon, Menu, MenuItem } from "@mui/material";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AiOutlineSetting } from "react-icons/ai";
 import { FiLogOut, FiUser } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
@@ -18,6 +18,8 @@ import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 import auth from "../../firebaseInit";
 import CartDrawer from "./CartDrawer";
 import { useGetCartProductsByEmailQuery } from "../../features/cart/cartApi";
+import { filterBySearch } from "../../features/filters/filtersSlice";
+import SearchBox from "./SearchBox";
 
 
 
@@ -46,8 +48,6 @@ const Navigation = () => {
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
     }
-
-
 
 
 
@@ -101,13 +101,28 @@ const Navigation = () => {
         content = <p className="text-xl font-bold">No Products found</p>
     }
     if (!isLoading && !isError && categories?.length > 0) {
-        content = categories?.map(cat => <Link key={cat._id} to={`/category/${cat.title}`}>{cat.title}</Link>)
+        content = categories?.map(cat => <Link key={cat._id} to={`/category/${cat.slug}`}>{cat.title}</Link>)
     }
 
 
 
     //TOTAL CART PRODUCTS
     const { data: cartProducts } = useGetCartProductsByEmailQuery(user?.email);
+
+
+    //SEARCH FILTER CONTROLLERS
+    const { stockFilter, sizeFilter, colorFilter, priceFilterStart, priceFilterEnd, searchFilter } = useSelector(state => state.filters);
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [searchText, setSearchText] = useState("");
+    useEffect(() => {
+        dispatch(filterBySearch(searchText))
+    }, [searchText, dispatch]);
+
+    const handleSearchBoxBlur = () => {
+        setTimeout(() => {
+            setShowSearchResults(false)
+        }, 100);
+    }
 
 
 
@@ -123,34 +138,11 @@ const Navigation = () => {
                         <div className="w-full">
                             <div className="w-2/3 mx-auto relative rounded-full">
                                 <div className="searchBox flex items-center justify-center">
-                                    <input type="text" placeholder="Search..." className="p-3 h-12 border border-primary border-r-0 rounded-l-full w-full" />
+                                    <input type="text" placeholder="Search..." onChange={(e) => setSearchText(e.target.value)} onBlur={handleSearchBoxBlur} onFocus={() => setShowSearchResults(true)} value={searchFilter} className="p-3 h-12 border border-primary border-r-0 rounded-l-full w-full" />
                                     <button className="p-3 border border-primary h-12 rounded-r-full pr-5 border-l-0 bg-primary text-white"><GoSearch className="text-lg " /></button>
                                 </div>
-                                <div className="p-3 absolute w-full mx-auto z-50 bg-white hidden">{/* //SEARCH RESULT BOX  */}
-                                    <div className="divide-y">
-                                        <div className="flex items-center justify-between py-1">
-                                            <div className="flex items-center space-x-3">
-                                                <img src={img} className="w-12 border p-1" alt="" />
-                                                <h4>Product Title Here</h4>
-                                            </div>
-                                            <h4 className="text-sm md:text-lg">$3250</h4>
-                                        </div>
-                                        <div className="flex items-center justify-between py-1">
-                                            <div className="flex items-center space-x-3">
-                                                <img src={img} className="w-12 border p-1" alt="" />
-                                                <h4>Product Title Here</h4>
-                                            </div>
-                                            <h4 className="text-sm md:text-lg">$3250</h4>
-                                        </div>
-                                        <div className="flex items-center justify-between py-1">
-                                            <div className="flex items-center space-x-3">
-                                                <img src={img} className="w-12 border p-1" alt="" />
-                                                <h4>Product Title Here</h4>
-                                            </div>
-                                            <h4 className="text-sm md:text-lg">$3250</h4>
-                                        </div>
-
-                                    </div>
+                                <div className="absolute w-full mx-auto z-50 bg-white">{/* //SEARCH RESULT BOX  */}
+                                    {showSearchResults && <SearchBox />}
                                 </div>
                             </div>
                         </div>
@@ -215,12 +207,14 @@ const Navigation = () => {
                                     </MenuItem>
                                     <Divider />
 
-                                    <MenuItem onClick={handleClose}>
-                                        <ListItemIcon>
-                                            <AiOutlineSetting fontSize="small" />
-                                        </ListItemIcon>
-                                        Settings
-                                    </MenuItem>
+                                    <Link to={"/dashboard"}>
+                                        <MenuItem onClick={handleClose}>
+                                            <ListItemIcon>
+                                                <AiOutlineSetting fontSize="small" />
+                                            </ListItemIcon>
+                                            Dashboard
+                                        </MenuItem>
+                                    </Link>
                                     {!user?.email ?
                                         <MenuItem onClick={handleClose}>
                                             <Link to="/login"><ListItemIcon>
@@ -266,30 +260,7 @@ const Navigation = () => {
                                 </div>
 
                                 <div className="p-3 absolute mt-[58px] w-full mx-auto z-50 bg-white shadow-lg">{/* //SEARCH RESULT BOX  */}
-                                    <div className="divide-y">
-                                        <div className="flex items-center justify-between py-1">
-                                            <div className="flex items-center space-x-3">
-                                                <img src={img} className="w-12 border p-1" alt="" />
-                                                <h4>Product Title Here</h4>
-                                            </div>
-                                            <h4 className="text-sm md:text-lg">$3250</h4>
-                                        </div>
-                                        <div className="flex items-center justify-between py-1">
-                                            <div className="flex items-center space-x-3">
-                                                <img src={img} className="w-12 border p-1" alt="" />
-                                                <h4>Product Title Here</h4>
-                                            </div>
-                                            <h4 className="text-sm md:text-lg">$3250</h4>
-                                        </div>
-                                        <div className="flex items-center justify-between py-1">
-                                            <div className="flex items-center space-x-3">
-                                                <img src={img} className="w-12 border p-1" alt="" />
-                                                <h4>Product Title Here</h4>
-                                            </div>
-                                            <h4 className="text-sm md:text-lg">$3250</h4>
-                                        </div>
-
-                                    </div>
+                                    {showSearchResults && <SearchBox />}
                                 </div>
 
                             </div>

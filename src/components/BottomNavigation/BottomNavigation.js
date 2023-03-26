@@ -1,5 +1,6 @@
-import { Avatar, Divider, Drawer, ListItemIcon, MenuItem } from "@mui/material";
+import { Avatar, Badge, Divider, Drawer, ListItemIcon, MenuItem } from "@mui/material";
 import React, { useState } from 'react';
+import { useAuthState } from "react-firebase-hooks/auth";
 import { AiOutlineHome, AiOutlineSetting } from "react-icons/ai";
 import { BsCart3 } from "react-icons/bs";
 import { FiLogOut, FiTriangle, FiUser } from "react-icons/fi";
@@ -7,10 +8,12 @@ import { GiTireIronCross } from "react-icons/gi";
 import { GoSearch } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { useGetCartProductsByEmailQuery } from "../../features/cart/cartApi";
 import { openCart, openMobileSearch } from "../../features/NavToggles/NavToggle.slice";
+import auth from "../../firebaseInit";
 
 const BottomNavigation = () => {
-
+    const [user] = useAuthState(auth)
     const dispatch = useDispatch();
     const { cartOpen, mobileSearchBox } = useSelector(state => state.navToggle);
 
@@ -29,6 +32,9 @@ const BottomNavigation = () => {
         document.documentElement.scrollTop = 0;
     }
 
+    //TOTAL CART PRODUCTS
+    const { data: cartProducts } = useGetCartProductsByEmailQuery(user?.email);
+
     return (
         < >
 
@@ -40,7 +46,9 @@ const BottomNavigation = () => {
                     <FiUser />
                 </div>
                 <div className="text-2xl cursor-pointer" onClick={() => dispatch(openCart(!cartOpen))}>
-                    <BsCart3 />
+                    <Badge badgeContent={cartProducts?.length} size="small" color="primary">
+                        <BsCart3 />
+                    </Badge>
                 </div>
                 <div className="text-2xl cursor-pointer" onClick={() => dispatch(openMobileSearch(!mobileSearchBox))}>
                     <GoSearch />

@@ -218,7 +218,7 @@ const SingleProduct = () => {
                                             </tr>
                                             <tr>
                                                 <th className="w-36 py-2">Category</th>
-                                                <td className="text-left">{product?.categories}</td>
+                                                <td className="text-left">{product?.categories.title}</td>
                                             </tr>
                                             <tr>
                                                 <th className="w-36 py-2">Tags</th>
@@ -329,10 +329,10 @@ const SingleProduct = () => {
                         </Tabs>
                     </Box>
                     <TabPanel value={value} index={0}>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo excepturi suscipit corrupti nisi labore? Molestias earum nam aliquam aspernatur modi quam. Recusandae tenetur, voluptate alias hic aut temporibus corporis libero!
+                        {product?.description}
                     </TabPanel>
                     <TabPanel value={value} index={1}>
-                        <ProductReview />
+                        <ProductReview productId={product?._id} />
                     </TabPanel>
                     <TabPanel value={value} index={2}>
                         Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae magnam fuga, ratione, recusandae iusto adipisci doloremque nobis ex unde animi eveniet accusamus! Ducimus incidunt cum eius labore dolorum velit vero nihil, soluta saepe. Laboriosam pariatur nesciunt ab est, corrupti id exercitationem alias asperiores quae beatae facere labore quibusdam commodi odio dolorum ea veniam delectus, nobis doloremque! Blanditiis a quo eius eligendi nobis dicta consequatur odit. Soluta cumque iusto, temporibus odit impedit labore possimus magni, blanditiis autem eveniet reiciendis explicabo. Ex veritatis id ut quo, esse laudantium quas sequi quos? Adipisci ab iure est? Ab fugit beatae dicta esse architecto voluptatum.

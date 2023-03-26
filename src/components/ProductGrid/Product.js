@@ -8,8 +8,11 @@ import { useAddToTheCartMutation, useGetCartProductsByEmailQuery, useUpdateCartP
 import auth from "../../firebaseInit";
 
 const Product = ({ product }) => {
+
+
     const { pathname } = useLocation();
     const [user] = useAuthState(auth);
+    
     const navigate = useNavigate();
     const { data: cartProducts, isLoading: cartIsLoading, isError: cartIsError, error: cartError } = useGetCartProductsByEmailQuery(user?.email);
     const [addToTheCart, { isLoading, isError, error, isSuccess }] = useAddToTheCartMutation();

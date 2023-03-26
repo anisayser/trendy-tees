@@ -20,7 +20,7 @@ function valuetext(value) {
 
 const FilterProductGrid = () => {
 
-    const { title } = useParams();
+    const { slug } = useParams();
 
     const [grid, setGrid] = useState("4");
 
@@ -37,9 +37,10 @@ const FilterProductGrid = () => {
 
     const [stockFilterAccordion, setStockFilterAccordion] = useState(true);
     const [sizeFilterAccordion, setSizeFilterAccordion] = useState(true);
+    const [colorFilterAccordion, setColorFilterAccordion] = useState(true);
     const [priceFilterAccordion, setPriceFilterAccordion] = useState(true);
 
-    const [value, setValue] = useState([20, 37]);
+    const [value, setValue] = useState([20, 150]);
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -58,17 +59,23 @@ const FilterProductGrid = () => {
         setSelectFilter(event.target.value);
     };
 
+    // console.log(selectFilter)
 
 
-    // STOCK, SIZE, COLOR, PRICE filters
+
+    // STOCK, SIZE, COLOR, PRICE filters || FILTER STATES
     const dispatch = useDispatch();
-    const { stockFilter, sizeFilter, colorFilter, priceFilter } = useSelector(state => state.filters);
+    const { stockFilter, sizeFilter, colorFilter, priceFilterStart, priceFilterEnd } = useSelector(state => state.filters);
+
+    // console.log(sizeFilter);
+
+
 
 
 
 
     //FILTER PRODUCTS
-    const { data: filterProducts, isLoading: filterIsLoading, isError: filterIsError, error: filterError } = useGetProductsQuery(`categories=${title}`);
+    const { data: filterProducts, isLoading: filterIsLoading, isError: filterIsError, error: filterError } = useGetProductsQuery(`categories.slug=${slug}`);
     //Decide what to render for men
     let filterContent = null;
     if (filterIsLoading) {
@@ -81,7 +88,45 @@ const FilterProductGrid = () => {
         filterContent = <p className="text-xl font-bold">No Products found</p>
     }
     if (!filterIsLoading && !filterIsError && filterProducts?.length > 0) {
-        filterContent = filterProducts?.map(product => <FilterProduct key={product._id} product={product} />)
+        // console.log(filterProducts);
+        filterContent = filterProducts?.filter(product => {
+            if (stockFilter.length > 0) {
+                return stockFilter.includes(product.status)
+            }
+            return product;
+        })
+            .filter(product => {
+                if (sizeFilter.length > 0) {
+                    return sizeFilter.some(size => product.size.includes(size))
+                }
+                return product;
+            })
+            .filter(product => {
+                if (colorFilter.length > 0) {
+                    for (let i = 0; i < colorFilter.length; i++) {
+                        return colorFilter.some(color => product.colors[i].title.toLowerCase() === color)
+                    }
+                }
+                return product;
+            })
+            .filter(product => product.price >= priceFilterStart && product.price <= priceFilterEnd)
+            .sort((a, b) => {
+                if (selectFilter === "low-to-high") {
+                    return a.price - b.price;
+                }
+                if (selectFilter === "high-to-low") {
+                    return b.price - a.price;
+                }
+                if (selectFilter === "new-to-old") {
+                    return new Date(b.createdAt).getTime()  - new Date(a.createdAt).getTime();
+                }
+                if (selectFilter === "old-to-new") {
+                    return new Date(a.createdAt).getTime()  - new Date(b.createdAt).getTime();
+                }
+                return a;
+            })
+
+            .map(product => <FilterProduct key={product._id} product={product} />)
     }
 
 
@@ -100,7 +145,7 @@ const FilterProductGrid = () => {
                                 <button className="text-lg text-tertiary" onClick={() => setGrid("3")}><TfiLayoutGrid3Alt className="w-5 h-5" /></button>
                                 <button className="text-lg text-tertiary" onClick={() => setGrid("4")}><TfiLayoutGrid4Alt className="w-6 h-6" /></button>
                                 <button className="text-lg text-tertiary" onClick={() => setGrid("2")}><TfiLayoutGrid2Alt className="w-5 h-5" /></button>
-                                <button className="text-lg text-tertiary" onClick={""}><HiBars4 className="w-6 h-6" /></button>
+                                <button className="text-lg text-tertiary" ><HiBars4 className="w-6 h-6" /></button>
                             </div>
                             <FormControl fullWidth>
                                 <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
@@ -113,14 +158,14 @@ const FilterProductGrid = () => {
                                     size="small"
                                     variant="standard"
                                 >
-                                    <MenuItem value={10}>Featured</MenuItem>
+                                    {/* <MenuItem value={10}>Featured</MenuItem>
                                     <MenuItem value={20}>Best Selling</MenuItem>
                                     <MenuItem value={30}>Alphabetically, A-Z</MenuItem>
-                                    <MenuItem value={40}>Alphabetically, Z-A</MenuItem>
-                                    <MenuItem value={50}>Price Low to High</MenuItem>
-                                    <MenuItem value={60}>Price High to Low</MenuItem>
-                                    <MenuItem value={70}>Date New to Old</MenuItem>
-                                    <MenuItem value={80}>Date Old to New</MenuItem>
+                                    <MenuItem value={40}>Alphabetically, Z-A</MenuItem> */}
+                                    <MenuItem value={"low-to-high"}>Price Low to High</MenuItem>
+                                    <MenuItem value={"high-to-low"}>Price High to Low</MenuItem>
+                                    <MenuItem value={"new-to-old"}>Date New to Old</MenuItem>
+                                    <MenuItem value={"old-to-new"}>Date Old to New</MenuItem>
                                 </Select>
                             </FormControl>
                         </div>
@@ -164,7 +209,7 @@ const FilterProductGrid = () => {
                                                 </div>
                                                 <div className="flex justify-between">
 
-                                                    <FormControlLabel control={<Checkbox size="small" disableRipple />} label="Out of Stock" /> <span>5</span>
+                                                    <FormControlLabel control={<Checkbox size="small" disableRipple value="out-of-stock" />} label="Out of Stock" /> <span>5</span>
                                                 </div>
                                             </FormGroup>
                                         </AccordionDetails>
@@ -201,7 +246,7 @@ const FilterProductGrid = () => {
                                     </Accordion>
 
                                     {/* COLOR FILTER */}
-                                    <Accordion expanded={sizeFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setSizeFilterAccordion(!sizeFilterAccordion)}>
+                                    <Accordion expanded={colorFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setColorFilterAccordion(!colorFilterAccordion)}>
                                         <AccordionSummary
                                             expandIcon={<FaAngleDown className="text-black" />}
                                             aria-controls="panel1bh-content"
@@ -258,6 +303,7 @@ const FilterProductGrid = () => {
                                             <Slider
                                                 getAriaLabel={() => 'Price range'}
                                                 value={value}
+                                                max={500}
                                                 onChange={handleChange}
                                                 valueLabelDisplay="auto"
                                                 getAriaValueText={valuetext}

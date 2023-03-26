@@ -16,9 +16,23 @@ export const productsApi = apiSlice.injectEndpoints({
             query: (id) => ({
                 url: `/products/${id}`
             })
+        }),
+
+        getProductsBySearch: builder.query({
+            query: (searchText) => ({
+                url: `/products/search?search=${searchText}`
+            })
+        }),
+
+        addProduct: builder.mutation({
+            query: (data) => ({
+                url: "/products",
+                method: "POST",
+                body: data
+            })
         })
 
     })
 })
 
-export const { useGetProductsQuery, useGetProductByIdQuery } = productsApi;
+export const { useGetProductsQuery, useGetProductByIdQuery, useGetProductsBySearchQuery, useAddProductMutation } = productsApi;

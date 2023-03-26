@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BiSlider } from "react-icons/bi";
 import { FaAngleDown, FaTrash } from "react-icons/fa";
 import { HiOutlineBars3BottomLeft } from "react-icons/hi2";
@@ -12,6 +12,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 
 import { Checkbox, FormControlLabel, FormGroup, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import Slider from '@mui/material/Slider';
+import { useDispatch, useSelector } from "react-redux";
+import { filterByColor, filterBySize, filterByStock, removeSizeFilter, removeStockFilter, filterByPriceStart, filterByPriceEnd } from "../features/filters/filtersSlice";
 
 
 
@@ -24,25 +26,95 @@ const FilterProducts = () => {
 
     const [stockFilterAccordion, setStockFilterAccordion] = useState(true);
     const [sizeFilterAccordion, setSizeFilterAccordion] = useState(true);
+    const [colorFilterAccordion, setColorFilterAccordion] = useState(true);
     const [priceFilterAccordion, setPriceFilterAccordion] = useState(true);
 
-    const [value, setValue] = React.useState([20, 37]);
+    const [priceValues, setPriceValues] = React.useState([5, 200]);
     const handleChange = (event, newValue) => {
-        setValue(newValue);
+        setPriceValues(newValue);
     };
 
 
     // COLOR FILTER CONTROLLS
     const [color, setColor] = useState("Red");
-    const [colorAlignment, setcolorAlignment] = React.useState('left');
-    const handleColorAlignment = (event, newAlignment) => {
-        setcolorAlignment(newAlignment);
+    const [colorAlignment, setcolorAlignment] = React.useState(() => []);
+    const handleColorAlignment = (event, newFormats) => {
+        setcolorAlignment(newFormats);
     };
+    // console.log(colorAlignment);
+
+
+    // STOCK, SIZE, COLOR, PRICE filters || FILTER STATES
+    const dispatch = useDispatch();
+    const { stockFilter, sizeFilter, colorFilter } = useSelector(state => state.filters);
+    // console.log(colorFilter);
+
+    //STOCK FILTER STARTS/******************* */
+    const [inStock, setInStock] = useState(false);
+    const [outStock, setOutStock] = useState(false);
+    const handleInStockFilter = (e) => {
+        setInStock(e.target.checked);
+    }
+    const handleOutStockFilter = (e) => {
+        setOutStock(e.target.checked);
+    }
+    useEffect(() => {
+        if (inStock) {
+            if (!stockFilter.includes("in-stock")) {
+                dispatch(filterByStock("in-stock"))
+            }
+        } else if (!inStock) {
+            if (stockFilter.includes("in-stock")) {
+                dispatch(removeStockFilter("in-stock"))
+            }
+        }
+        if (outStock) {
+            if (!stockFilter.includes("out-of-stock")) {
+                dispatch(filterByStock("out-of-stock"))
+            }
+        } else if (!outStock) {
+            if (stockFilter.includes("out-of-stock")) {
+                dispatch(removeStockFilter("out-of-stock"))
+            }
+        }
+    }, [inStock, outStock, stockFilter, dispatch]);
+    //STOCK FILTER ENDS/******************* **********************/
+
+    //SIZE FILTER STARTS/******************* */
+    const handleSizeFilter = (e) => {
+        const { value, checked } = e.target;
+
+        if (checked) {
+            dispatch(filterBySize(value))
+        } else {
+            dispatch(removeSizeFilter(value))
+        }
+    }
+    //SIZE FILTER ENDS/******************* ***********************/
+
+    //COLOR FILTER STARTS/******************* */
+    useEffect(() => {
+        dispatch(filterByColor([...colorAlignment]))
+    }, [colorAlignment, dispatch])
+    //COLOR FILTER ENDS/******************* ***********************/
+
+    //PRICE FILTER STARTS/******************* */
+    useEffect(() => {
+        dispatch(filterByPriceStart(priceValues[0]));
+        dispatch(filterByPriceEnd(priceValues[1]));
+    }, [priceValues, dispatch]);
+    //PRICE FILTER ENDS/******************* ***********************/
 
 
 
 
-    
+
+
+    // console.log(priceValues);
+
+
+
+
 
     return (
         <div className="pt-[58px] lg:pt-0">
@@ -90,11 +162,10 @@ const FilterProducts = () => {
                                     <AccordionDetails>
                                         <FormGroup>
                                             <div className="flex justify-between">
-                                                <FormControlLabel control={<Checkbox size="small" disableRipple defaultChecked />} label="In Stock" /> <span>10</span>
+                                                <FormControlLabel control={<Checkbox size="small" value="in-stock" disableRipple onChange={handleInStockFilter} />} label="In Stock" /> <span>10</span>
                                             </div>
                                             <div className="flex justify-between">
-
-                                                <FormControlLabel control={<Checkbox size="small" disableRipple />} label="Out of Stock" /> <span>5</span>
+                                                <FormControlLabel control={<Checkbox size="small" value="out-of-stock" onChange={handleOutStockFilter} disableRipple />} label="Out of Stock" /> <span>5</span>
                                             </div>
                                         </FormGroup>
                                     </AccordionDetails>
@@ -115,23 +186,23 @@ const FilterProducts = () => {
                                     <AccordionDetails>
                                         <FormGroup>
                                             <div className="flex justify-between">
-                                                <FormControlLabel control={<Checkbox size="small" disableRipple defaultChecked />} label="M" /> <span>10</span>
+                                                <FormControlLabel control={<Checkbox size="small" disableRipple value={"M"} onChange={handleSizeFilter} />} label="M" /> <span>10</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <FormControlLabel control={<Checkbox size="small" disableRipple />} label="L" /> <span>5</span>
+                                                <FormControlLabel control={<Checkbox size="small" disableRipple value={"L"} onChange={handleSizeFilter} />} label="L" /> <span>5</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <FormControlLabel control={<Checkbox size="small" disableRipple />} label="XL" /> <span>5</span>
+                                                <FormControlLabel control={<Checkbox size="small" disableRipple value={"XL"} onChange={handleSizeFilter} />} label="XL" /> <span>5</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <FormControlLabel control={<Checkbox size="small" disableRipple />} label="XXL" /> <span>5</span>
+                                                <FormControlLabel control={<Checkbox size="small" disableRipple value={"XXL"} onChange={handleSizeFilter} />} label="XXL" /> <span>5</span>
                                             </div>
                                         </FormGroup>
                                     </AccordionDetails>
                                 </Accordion>
 
                                 {/* COLOR FILTER */}
-                                <Accordion expanded={sizeFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setSizeFilterAccordion(!sizeFilterAccordion)}>
+                                <Accordion expanded={colorFilterAccordion} sx={{ boxShadow: "none" }} onChange={() => setColorFilterAccordion(!colorFilterAccordion)}>
                                     <AccordionSummary
                                         expandIcon={<FaAngleDown className="text-black" />}
                                         aria-controls="panel1bh-content"
@@ -147,25 +218,25 @@ const FilterProducts = () => {
                                             size="small"
                                             // color="primary"
                                             value={colorAlignment}
-                                            exclusive
+                                            // exclusive
                                             onChange={handleColorAlignment}
-                                            aria-label="text alignment"
+                                            aria-label="text formatting"
                                         >
-                                            <ToggleButton value="red" aria-label="left aligned" onClick={() => setColor("Red")}>
+                                            <ToggleButton value="red" aria-label="red" onClick={() => setColor("Red")}>
                                                 <span className="font-bold text-sm w-5 h-5 bg-red-700"></span>
                                             </ToggleButton>
-                                            <ToggleButton value="green" aria-label="centered" onClick={() => setColor("Green")}>
+                                            <ToggleButton value="green" aria-label="green" onClick={() => setColor("Green")}>
                                                 <span className="font-bold text-sm w-5 h-5 bg-green-700"></span>
 
                                             </ToggleButton>
-                                            <ToggleButton value="blue" aria-label="right aligned" onClick={() => setColor("Blue")}>
+                                            <ToggleButton value="blue" aria-label="blue" onClick={() => setColor("Blue")}>
                                                 <span className="font-bold text-sm w-5 h-5 bg-blue-700"></span>
 
                                             </ToggleButton>
-                                            <ToggleButton value="black" aria-label="justified" onClick={() => setColor("Black")}>
+                                            <ToggleButton value="black" aria-label="black" onClick={() => setColor("Black")}>
                                                 <span className="font-bold text-sm w-5 h-5 bg-black"></span>
                                             </ToggleButton>
-                                            <ToggleButton value="white" aria-label="justified" onClick={() => setColor("White")}>
+                                            <ToggleButton value="white" aria-label="white" onClick={() => setColor("White")}>
                                                 <span className="font-bold text-sm w-5 h-5 bg-white"></span>
                                             </ToggleButton>
                                         </ToggleButtonGroup>
@@ -187,7 +258,8 @@ const FilterProducts = () => {
                                     <AccordionDetails>
                                         <Slider
                                             getAriaLabel={() => 'Price range'}
-                                            value={value}
+                                            max={500}
+                                            value={priceValues}
                                             onChange={handleChange}
                                             valueLabelDisplay="auto"
                                             getAriaValueText={valuetext}

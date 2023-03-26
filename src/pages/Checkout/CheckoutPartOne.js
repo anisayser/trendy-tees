@@ -84,60 +84,34 @@ const CheckoutPartOne = () => {
                                 id="panel1bh-header"
                             >
                                 <div className="text-sm font-semibold flex items-center space-x-2">
-                                    <BsCart3 className="text-black" /><span>Show Order Summery</span>
+                                    <BsCart3 className="text-black" /><span>Order Summery</span>
                                 </div>
                                 {/* <Typography sx={{ color: 'text.secondary' }}>I am an accordion</Typography> */}
                             </AccordionSummary>
                             <AccordionDetails>
                                 <div className="">
                                     <div className="space-y-5 border-b pb-5">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-5">
-                                                <Badge badgeContent={4} color="secondary">
-                                                    <img src={img} className="w-16 border p-1 rounded" alt="" />
-                                                </Badge>
-                                                <h5>This is the Product Title</h5>
-                                            </div>
-                                            <h4 className="text-lg font-semibold">$3250</h4>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-5">
-                                                <Badge badgeContent={4} color="secondary">
-                                                    <img src={img} className="w-16 border p-1 rounded" alt="" />
-                                                </Badge>
-                                                <h5>This is the Product Title</h5>
-                                            </div>
-                                            <h4 className="text-lg font-semibold">$3250</h4>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-5">
-                                                <Badge badgeContent={4} color="secondary">
-                                                    <img src={img} className="w-16 border p-1 rounded" alt="" />
-                                                </Badge>
-                                                <h5>This is the Product Title</h5>
-                                            </div>
-                                            <h4 className="text-lg font-semibold">$3250</h4>
-                                        </div>
+                                        {content}
                                     </div>
 
                                     <div className="space-y-1 py-5 border-b pb-5">
                                         <div className="flex items-center justify-between">
                                             <p>Subtotal</p>
-                                            <h4 className="">$3250</h4>
+                                            <h4 className="">${subTotal}</h4>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <p>Tax</p>
-                                            <h4 className="">$50</h4>
+                                            <h4 className="">${tax.toFixed(2)}</h4>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <p>Shipping</p>
-                                            <h4 className="">$80</h4>
+                                            <h4 className="">${shipping}</h4>
                                         </div>
                                     </div>
                                     <div>
                                         <div className="flex items-center justify-between">
                                             <p className="text-xl">Total</p>
-                                            <h4 className="text-2xl">$4180</h4>
+                                            <h4 className="text-2xl">${total.toFixed(2)}</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -164,7 +138,7 @@ const CheckoutPartOne = () => {
                         </div>
                         <div className="flex items-center justify-between">
                             <p>Tax</p>
-                            <h4 className="">${tax}</h4>
+                            <h4 className="">${tax.toFixed(2)}</h4>
                         </div>
                         <div className="flex items-center justify-between">
                             <p>Shipping</p>

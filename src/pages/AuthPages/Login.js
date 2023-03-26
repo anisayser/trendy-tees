@@ -2,7 +2,7 @@ import { FormControl, IconButton, InputAdornment, InputLabel, LinearProgress, Ou
 import React, { useEffect, useState } from 'react'
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
 import { HiOutlineMail } from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthState, useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import auth from "../../firebaseInit";
 
@@ -15,15 +15,18 @@ const Login = () => {
     };
 
     const navigate = useNavigate();
+    const location = useLocation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [user] = useAuthState(auth);
 
+    const from = location?.state?.from || "/";
+
     useEffect(() => {
         if (user?.email) {
-            navigate("/", { replace: true })
+            navigate(from, { replace: true })
         }
-    }, [navigate, user?.email])
+    }, [navigate, user?.email, from])
 
 
     const [

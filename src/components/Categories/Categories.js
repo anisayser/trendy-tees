@@ -22,7 +22,7 @@ const Categories = () => {
             <div key={cat._id} className="relative">
                 <img src={cat.image} className="w-full" alt="" />
                 <div className="absolute bottom-0 p-2 md:bottom-2 w-full text-center">
-                    <Link to={`/category/${cat.title}`}>
+                    <Link to={`/category/${cat.slug}`}> 
                         <button className="bg-[#FFFFFF] w-full md:w-40 py-1 md:py-2 text-base shadow-xl hover:bg-black hover:text-white duration-300 ease-linear">{cat.title}</button>
                     </Link>
                 </div>
